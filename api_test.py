@@ -1,22 +1,29 @@
 """
 api_test.py
-------------
 Fetches the current Bitcoin price in USD using the CoinGecko API.
 """
 
 import requests
 
-# CoinGecko API endpoint
+# API endpoint
 url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
 
-# Send GET request
-response = requests.get(url)
+try:
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()  # Check HTTP status
 
-# Convert response to JSON
-data = response.json()
+    data = response.json()       # Parse JSON response
+    bitcoin_price = data["bitcoin"]["usd"]  # Extract nested value
 
-# Extract Bitcoin price in USD
-bitcoin_price = data["bitcoin"]["usd"]
+    print(f"Bitcoin price: ${bitcoin_price}")
 
-# Print result
-print(f"Bitcoin price: ${bitcoin_price}")
+except requests.exceptions.RequestException as error:
+    print("API request failed:", error)
+
+except KeyError:
+    print("Unexpected JSON structure.")
+
+except ValueError:
+    print("Failed to parse JSON response.")
+    
+    
